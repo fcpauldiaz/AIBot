@@ -5,8 +5,6 @@
  */
 import io from 'socket.io-client';
 import prompt from 'prompt';
-
-
 const readline = require('readline');
 
 const rl = readline.createInterface({
@@ -21,12 +19,9 @@ rl.question('Enter full port : ', (full_port) => {
     socket.on('connect', () => {
       socket.emit('signin', {
         user_name: "fcpauldiaz",
-        tournament_id: +id,
+        tournament_id: id,
         user_role: 'player'
       });
-    });
-    socket.on('event', () => {
-
     });
 
     socket.on('ok_signin', () => {
@@ -34,26 +29,26 @@ rl.question('Enter full port : ', (full_port) => {
     });
 
     socket.on('ready', (data) => {
-      var gameID = data.game_id;
-      var playerTurnID = data.player_turn_id;
-      var board = data.board;
+      const gameID = data.game_id;
+      const playerTurnID = data.player_turn_id;
+      const board = data.board;
       
       console.log(playerTurnID);
       
     });
 
     socket.on('finish', (data) => {
-      var gameID = data.game_id;
-      var playerTurnID = data.player_turn_id;
-      var winnerTurnID = data.winner_turn_id;
-      var board = data.board;
+      const gameID = data.game_id;
+      const playerTurnID = data.player_turn_id;
+      const winnerTurnID = data.winner_turn_id;
+      const board = data.board;
       console.log('finish');  
 
 
     });
 
     socket.on('disconnect', () => {
-
+      console.log('disconnect');
     });
     rl.close();
   });

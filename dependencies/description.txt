@@ -1,0 +1,1 @@
+Este directorio tendra las dependencias funcionales para que el usuario pueda jugar

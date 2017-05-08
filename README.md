@@ -1,10 +1,9 @@
-# ChapiRacing
-ChapiRacing Redes UVG
+# Othello AI BOT
 
 Usage
 
-1. npm install
+1. yarn install
 
 2. yarn start
 
-3. http://localhost:4004
+3. Enter full hostname and game id

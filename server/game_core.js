@@ -1,125 +1,118 @@
-import Player from '../client/player';
-import FallingObject from '../client/fallingObject';
 
-export default class Game {
-  constructor(id, players, playerCount)  {
-    this.id = id;
-    this.players = players;
-    this.numberAvailable = [2, 3, 4];
-    this.team1Type = ['bomber', 'car'];
-    this.team2Type = ['bomber', 'car'];
-    this.objectsArray = [];
-    this.playerCount = playerCount;
-    this.typesValid = false;
-  }
-  
-  getId() {  
-    return this.id; 
-  }
-
-  setTypesValid() {
-    this.typesValid = true;
-  }
-
-  getValid() {
-    return this.typesValid;
-  }
-
-  increasePlayerCount() {
-    this.playerCount++;
-  }
-
-  decreasePlayerCount() {
-    this.playerCount--;
-  }
-
-  removePlayer(index) {
-    this.players.splice(index, 1);
-    this.addNumber(index);
-    this.decreasePlayerCount();
-  }
-
-  addPlayer(id) {
-    this.increasePlayerCount();
-    const playerNum = this.getPlayerNumber();
-    this.players.push(new Player(id, playerNum));
-    return playerNum;
-  }
-
-  getPlayers() {
-    return this.players;
-  }
-
-  findPlayer(index) {
-    return this.players[index];
-  }
-
-  getPlayerCount() {
-    return this.playerCount;
-  }
-
-  addObject(object) {
-    this.objectsArray.push(new FallingObject(object));
-  }
-
-  removeObject(object_id) {
-    for (let i = 0; i < this.objectsArray.length; i++) {
-      const object = this.objectsArray[i];
-      if (object.getId() === object_id) {
-        //remove object from array
-        this.objectsArray.splice(i, 1);
-        //nothing else to do;
-        return;
-      }
+export const transformBoard = (board) => {
+  let returnArray = [];
+  let innerArray = [];
+  for(let i = 1; i < board.length+1; i++) {
+    innerArray.push(board[i-1]);
+    if (i%8 === 0 && i !== 0) {
+      returnArray.push(innerArray);
+      innerArray = [];
     }
   }
-
-  getObjects() {
-    return this.objectsArray;
-  }
-
-  getObjectsLength() {
-    return this.objects.length;
-  }
-  //use when player is added
-  getPlayerNumber() {
-    return this.numberAvailable.shift();
-  }
-  //use when player retires from game
-  addNumber(number) {
-    //inserts at first position
-    this.numberAvailable.unshift(number+1);
-    this.numberAvailable = this.numberAvailable.sort();
-  }
-
-  getPlayerActualType(team) {
-    if (team === 1) {
-        return this.team1Type.shift();
-    }
-    if (team === 2) {
-      return this.team2Type.shift();
-    }
-    console.log('team not found')
-    console.log(team)
-    return -1;
-  }
-
-   getPlayerType(player_id) {
-
-    for (let i = 0; i < this.players.length; i++) {
-      let player = this.players[i];
-      if (player.getPlayerId() === player_id) {
-        if (player.getTeam() === 1) {
-          const type = this.team1Type.shift();
-          return type;
-        }
-        if (player.getTeam() === 2) {
-          const type = this.team2Type.shift();
-          return type;
-        }
-      }
-    }
-    return -1; //should get here, error
-  }
-
+  return returnArray;
 }
+
+export const legalMove = (r, c, color, boardMod) => {
+  let board = boardMod.map(a => Object.assign({}, a));
+  let legal = false;
+  if (board[r][c] === 0) {
+    // Initialize variables
+    let posX;
+    let posY;
+    let found;
+    let current;
+    
+    // Searches in each direction
+    // x and y describe a given direction in 9 directions
+    // 0, 0 is redundant and will break in the first check
+    for (let x = -1; x <= 1; x++)
+    {
+      for (let y = -1; y <= 1; y++)
+      {
+        // Variables to keep track of where the algorithm is and
+        // whether it has found a valid move
+        posX = c + x;
+        posY = r + y;
+        found = false;
+
+        try {
+          current = board[posY][posX];
+        } catch(err){
+          continue;
+        }
+        
+        // Check the first cell in the direction specified by x and y
+        // If the cell is empty, out of bounds or contains the same color
+        // skip the rest of the algorithm to begin checking another direction
+        if (current === undefined || current === 0 || current === color)
+        {
+          continue;
+        }
+        
+        // Otherwise, check along that direction
+        while (!found)
+        {
+          console.log(x, y);
+          console.log(posX, posY)
+          console.log('before');
+          posX += x;
+          posY += y;
+          
+
+          try {
+            current = board[posY][posX];
+          } catch(err) {
+            current = undefined;
+          }
+          console.log(color);
+          console.log(x, y);
+          console.log(posX, posY);
+          console.log(current === color);
+          // If the algorithm finds another piece of the same color along a direction
+          // end the loop to check a new direction, and set legal to true
+          if (current === color)
+          {
+            found = true;
+            legal = true;
+            
+          }
+          // If the algorithm reaches an out of bounds area or an empty space
+          // end the loop to check a new direction, but do not set legal to true yet
+          else if (current !== 0)
+          {
+            //keep searching
+            found = true;
+            console.log('should keep searching');
+            
+            console.log(posX, posY);
+            while(true) {
+              try {
+                current = board[posY][posX];
+              } catch(err) {
+                break;
+              }
+              posX += x;
+              posY += y;
+
+              if (current === color) {
+                legal = true;
+                break;
+              }
+              if (current === 0 || current === undefined){
+                break;
+              }
+              console.log(current);
+
+            }
+          }
+          else {
+            found = true; //current = 0 break looop
+          }
+        }
+      }
+    }
+  }
+  return legal;
+}
+
+

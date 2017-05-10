@@ -40,22 +40,25 @@ rl.question('Enter full port : ', (full_port) => {
         for (let x = 0; x < modBoard.length; x++) {
           for (let y = 0; y < modBoard[x].length;y++) {
             let legal = legalMove(x, y, playerTurnID, modBoard);
-            if (legal) {
-              validMoves.push(x*8+y);
+            if (legal.legal === true) {
+              validMoves.push({pos:(x*8+y), weight: legal.weight});
               otherValid.push({x, y});
             }
           }
         }
         //legalMove(3, 2, 1, modBoard);
-        const movement = validMoves[Math.floor(Math.random()*validMoves.length)];
+        const movement = validMoves.reduce(function(prev, curr) {
+            return prev.weight > curr.weight ? prev : curr;
+        });
         console.log(otherValid);
         console.log(modBoard);
+        console.log(movement);
         
         socket.emit('play', {
           tournament_id: socket.tournament_id,
           player_turn_id: playerTurnID,
           game_id: gameID,
-          movement
+          movement: movement.pos
         });
       });
 

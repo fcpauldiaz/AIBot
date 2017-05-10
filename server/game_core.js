@@ -12,9 +12,10 @@ export const transformBoard = (board) => {
   return returnArray;
 }
 
+
 export const legalMove = (r, c, color, boardMod) => {
   let board = boardMod.map(a => Object.assign({}, a));
-  let legal = false;
+  let legalObj = { legal: false, weight: 0 };
   if (board[r][c] === 0) {
     // Initialize variables
     let posX;
@@ -73,7 +74,8 @@ export const legalMove = (r, c, color, boardMod) => {
           if (current === color)
           {
             found = true;
-            legal = true;
+            legalObj.legal = true;
+            legalObj.weight += 1
             
           }
           // If the algorithm reaches an out of bounds area or an empty space
@@ -93,9 +95,9 @@ export const legalMove = (r, c, color, boardMod) => {
               }
               posX += x;
               posY += y;
-
+              legalObj.weight += 1
               if (current === color) {
-                legal = true;
+                legalObj['legal'] = true;
                 break;
               }
               if (current === 0 || current === undefined){
@@ -112,7 +114,7 @@ export const legalMove = (r, c, color, boardMod) => {
       }
     }
   }
-  return legal;
+  return legalObj;
 }
 
 

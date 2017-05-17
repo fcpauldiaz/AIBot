@@ -5,7 +5,7 @@
  */
 import io from 'socket.io-client';
 import prompt from 'prompt';
-import { transformBoard, legalMove } from './server/game_core';
+import { minimax} from './server/mini_max';
 const readline = require('readline');
 
 const rl = readline.createInterface({
@@ -34,31 +34,17 @@ rl.question('Enter full port : ', (full_port) => {
       socket.on('ready', (data) => {
         const gameID = data.game_id;
         const playerTurnID = data.player_turn_id;
-        const modBoard = transformBoard(data.board);
-        let validMoves = [];
-        let otherValid = [];
-        for (let x = 0; x < modBoard.length; x++) {
-          for (let y = 0; y < modBoard[x].length;y++) {
-            let legal = legalMove(x, y, playerTurnID, modBoard);
-            if (legal.legal === true) {
-              validMoves.push({pos:(x*8+y), weight: legal.weight});
-              otherValid.push({x, y});
-            }
-          }
-        }
-        //legalMove(3, 2, 1, modBoard);
-        const movement = validMoves.reduce(function(prev, curr) {
-            return prev.weight > curr.weight ? prev : curr;
-        });
-        console.log(otherValid);
-        console.log(modBoard);
+        const board = data.board;
+        console.log('play', playerTurnID);
+        const movement = minimax(board, playerTurnID, 1, 1);
+        console.log('****** MOVEMENT *****');
         console.log(movement);
         
         socket.emit('play', {
           tournament_id: socket.tournament_id,
           player_turn_id: playerTurnID,
           game_id: gameID,
-          movement: movement.pos
+          movement: movement.movement
         });
       });
 

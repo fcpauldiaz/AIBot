@@ -1,26 +1,25 @@
 // function to flip positions
 
-import { BLACK, WHITE, N, EMPTY } from 'constants';
- 
+import { BLACK, WHITE, N, EMPTY } from './constants';
+import { mapMatrix } from './game_core';
 /*
  * board  1D array
  * playingColor 1 or 0
  * position tile movement
  */
-export const getTilePositionsToFlip = (board, playingColor, position) => {
-
+const getTilePositionsToFlip = (board, playingColor, position) => {
   const otc = getOpponentTileColor(playingColor);
 
   // Possible move directions
   const deltaDirections ={
-    down: ix(0, 1), // Down
-    right_down: ix(1, 1), // Right down
-    right: ix(1, 0), // Right
-    right_up: ix(1, -1), // Right up
-    up: ix(0, -1), // Up
-    left_up: ix(-1, -1), // Left up
-    left: ix(-1, 0), // Left
-    left_down: ix(-1, 1) // Left down
+    down: mapMatrix(0, 1), // Down
+    right_down: mapMatrix(1, 1), // Right down
+    right: mapMatrix(1, 0), // Right
+    right_up: mapMatrix(1, -1), // Right up
+    up: mapMatrix(0, -1), // Up
+    left_up: mapMatrix(-1, -1), // Left up
+    left: mapMatrix(-1, 0), // Left
+    left_down: mapMatrix(-1, 1) // Left down
   };
 
   // Auxiliar movement directions
@@ -39,7 +38,7 @@ export const getTilePositionsToFlip = (board, playingColor, position) => {
   let  tilePositionsToFlip = [];
 
   // For each movement direction
-  for (movementKey in deltaDirections){
+  for (let movementKey in deltaDirections){
 
     // Movement delta
     let movementDelta = deltaDirections[movementKey],
@@ -95,14 +94,23 @@ export const getTilePositionsToFlip = (board, playingColor, position) => {
 
   return tilePositionsToFlip;
 };
-const ix = (x, y) => {
-  return x + y * N;
+
+export const changeState = (modBoard, playingColor, movement) => {
+  let board = modBoard.slice();
+  const tilePositionsToFlip = getTilePositionsToFlip(board, playingColor, movement);
+  // Flip and place all the captured tiles
+  for(var i = 0; i < tilePositionsToFlip.length; i++){
+    board[tilePositionsToFlip[i]] = playingColor;
+  }
+  board[movement] = playingColor;
+  return board;
 }
+
 const isOnBoard = (position) => {
   return position >= 0 && position < Math.pow(N, 2);
 }
 
-const getOpponentTileColor = (tileColor) => {
+export const getOpponentTileColor = (tileColor) => {
   return tileColor === BLACK ? WHITE : BLACK;
 }
 
@@ -117,4 +125,18 @@ export const judge = (board) => {
   }
 
   return judgement;
+}
+
+export const scoreFunction = (board, playingColor) => {
+  const judgement = judge(board);
+  const otc = getOpponentTileColor(playingColor);
+  // If black wins, it means player 1 wins
+  if (judgement[playingColor] > judgement[otc]) {
+    return judgement[playingColor];
+  }
+  // If white wins, it means player 2 wins
+  else {
+   return judgement[otc];
+  }
+  return 0;          
 }

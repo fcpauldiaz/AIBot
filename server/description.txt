@@ -1,5 +1,0 @@
-Esta carpeta tendrá toda la parte del server, la cual constará de las siguientes funcionalidades:
-- Manejo de Requests
-- Lógica del juego
-- Creación de Lobby
-- Real-time management

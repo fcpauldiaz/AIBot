@@ -86,7 +86,7 @@ const getTilePositionsToFlip = (board, playingColor, position) => {
 
     // If we should capture
     if(shouldCaptureInThisDirection){
-      for(var i = 0; i < positionsToFlip.length; i++){
+      for(let i = 0; i < positionsToFlip.length; i++){
         tilePositionsToFlip.push(positionsToFlip[i]);
       }
     }
@@ -99,7 +99,7 @@ export const changeState = (modBoard, playingColor, movement) => {
   let board = modBoard.slice();
   const tilePositionsToFlip = getTilePositionsToFlip(board, playingColor, movement);
   // Flip and place all the captured tiles
-  for(var i = 0; i < tilePositionsToFlip.length; i++){
+  for(let i = 0; i < tilePositionsToFlip.length; i++){
     board[tilePositionsToFlip[i]] = playingColor;
   }
   board[movement] = playingColor;
@@ -127,16 +127,6 @@ export const judge = (board) => {
   return judgement;
 }
 
-export const scoreFunction = (board, playingColor) => {
-  const judgement = judge(board);
-  const otc = getOpponentTileColor(playingColor);
-  // If black wins, it means player 1 wins
-  if (judgement[playingColor] > judgement[otc]) {
-    return judgement[playingColor];
-  }
-  // If white wins, it means player 2 wins
-  else {
-   return judgement[otc];
-  }
-  return 0;          
+export const fullBoard = (board) => {
+  return judge(board)[EMPTY] === 0;
 }

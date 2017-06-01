@@ -5,7 +5,8 @@
  */
 import io from 'socket.io-client';
 import prompt from 'prompt';
-import { minimax} from './server/mini_max';
+import { minimax } from './server/mini_max';
+import { hMove } from './server/heuristic';
 const readline = require('readline');
 
 const rl = readline.createInterface({
@@ -46,14 +47,24 @@ rl.question('Enter full port : ', (full_port) => {
 
         console.log('play', playerTurnID);
         const movement = minimax(board, playerTurnID, playerTurnID, 0, -Infinity, Infinity);
+        const h_move = hMove(board, playerTurnID);
+        let move = -1;
+        if (h_move.weight > movement.v) {
+          move = h_move.pos;
+        } else {
+          move = movement.legalMove;
+        }
+
+
         console.log('****** MOVEMENT *****');
         console.log(movement);
+        //console.log(h_move);
        // socket.tiro += 1;
         socket.emit('play', {
           tournament_id: socket.tournament_id,
           player_turn_id: playerTurnID,
           game_id: gameID,
-          movement: movement.legalMove
+          movement: move
         });
       });
 

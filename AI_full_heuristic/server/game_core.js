@@ -1,131 +1,124 @@
-import { legalMove, transformBoard, mapMatrix } from './game_core';
-import { 
-    changeState, 
-    getOpponentTileColor, 
-    judge, fullBoard } from './board_functions';
-import { BLACK, WHITE, N, EMPTY, TERMINAL, SQUARE_WEIGHTS } from './constants';
-
-// mini max implementation
-// recursive
-export const minimax = (board, playerColor, playingColor, depth, max_value, min_value) => {
-  // console.log(depth);
-  // console.log(TERMINAL, 'finish');
-  if (depth >= TERMINAL || fullBoard(board)) {
-    return { v: (weightScore(board, playingColor) + judge(board)[playingColor]), legalMove: undefined };
-  }
-  let stateScore = { score: 0 , movement: undefined };
-  let max_or_min = undefined;
-  // maximize
-  if (playerColor === playingColor) {
-    max_or_min = true;
-  }
-  // minimize
-  if (playerColor !== playingColor) {
-    max_or_min = false;
-  }
-
-  // get all valid moves
-  const validMoves = getAllValidMoves(board, playingColor);
-  
-  // const modBoard = transformBoard(board);
-  // console.log(modBoard);
-  
-  // console.log(validMoves);
-  
-  let nextStates = [];
-  // get all possible states from legal moves
-  validMoves.forEach((legalMove) => {
-    const nextBoard = changeState(board, playingColor, legalMove);
-    nextStates.push({ nextBoard, legalMove });
-    // console.log(transformBoard(nextBoard));
-  });  
-
-  if (validMoves.length === 0) {
-    // console.log('NO VALID MOVES');
-    return { v: heuristic(board, playingColor), legalMove: undefined };
-  }
-
-  let nextPlayingColor = playingColor;
-  if (depth > 0) {
-    nextPlayingColor = getOpponentTileColor(nextPlayingColor);
-  }
-  
-  // maximize 
-  if (max_or_min === true) {
-    return maxValue(nextStates, playerColor, nextPlayingColor, depth,  max_value, min_value);
-  }
-  // minimize
-  if (max_or_min === false) {
-    return minValue(nextStates, playerColor, nextPlayingColor, depth,  max_value, min_value);
-  }
-  
-}
-
-const maxValue = (nextState, playerColor, playingColor, depth, alpha_max, beta_min) => {
-  let v = -Infinity;
-  // console.log('length1' + nextState.length);
-  for (let state of nextState) {
-    v = Math.max(v, minimax(state.nextBoard, playerColor, playingColor, depth + 1, alpha_max, beta_min).v);
-    // console.log('should compare');
-    // console.log(v, beta_min);
-    if (v >= beta_min) { 
-      // console.log('max');
-      // console.log({ v, legalMove: state.legalMove });
-      return { v, legalMove: state.legalMove };
+export const transformBoard = (board) => {
+  let returnArray = [];
+  let innerArray = [];
+  for(let i = 1; i < board.length+1; i++) {
+    innerArray.push(board[i-1]);
+    if (i%8 === 0 && i !== 0) {
+      returnArray.push(innerArray);
+      innerArray = [];
     }
-    alpha_max = Math.max(alpha_max, v);
   }
-  const random = Math.floor(Math.random() * nextState.length);
-  // console.log('random', random);
-  return { v, legalMove: nextState[random].legalMove };
+  return returnArray;
 }
 
-const minValue = (nextState, playerColor, playingColor, depth, alpha_max, beta_min) => {
-  let v = Infinity;
-  //console.log('length2' + nextState.length);
-  for (let state of nextState) {
-    v = Math.min(v, minimax(state.nextBoard,playerColor, playingColor, depth + 1, alpha_max, beta_min).v);
-    if (v <= alpha_max) { 
-      // console.log('min');
-      // console.log({ v,  legalMove: state.legalMove });
-      return { v,  legalMove: state.legalMove };
-    }
-    beta_min = Math.min(beta_min, v);
-  };
-  const random = Math.floor(Math.random() * nextState.length);
-  // console.log('random', random);
-  
-  return { v, legalMove: nextState[random].legalMove };
+export const mapMatrix = function(x, y) {
+  return x + y * 8;
 }
 
-const getAllValidMoves = (board, playingColor) => {
-  let validMoves = [];
-  for (let x = 0; x < N; x++) {
-    for (let y = 0; y < N; y++) {
-      let legal = legalMove(x, y, playingColor, board);
-      if (legal === true) {
-        const legalMove = mapMatrix(x, y);
-        validMoves.push(legalMove);
-        //otherValid.push({ x, y });
+export const legalMove = (r, c, color, boardMod) => {
+  let board = boardMod.map(a => Object.assign({}, a));
+  let legalObj = { legal: false, weight: 0 };
+  if (board[r][c] === 0) {
+    // Initialize variables
+    let posX;
+    let posY;
+    let found;
+    let current;
+    
+    // Searches in each direction
+    // x and y describe a given direction in 9 directions
+    // 0, 0 is redundant and will break in the first check
+    for (let x = -1; x <= 1; x++)
+    {
+      for (let y = -1; y <= 1; y++)
+      {
+        // Variables to keep track of where the algorithm is and
+        // whether it has found a valid move
+        posX = c + x;
+        posY = r + y;
+        found = false;
+
+        try {
+          current = board[posY][posX];
+        } catch(err){
+          continue;
+        }
+        
+        // Check the first cell in the direction specified by x and y
+        // If the cell is empty, out of bounds or contains the same color
+        // skip the rest of the algorithm to begin checking another direction
+        if (current === undefined || current === 0 || current === color)
+        {
+          continue;
+        }
+        
+        // Otherwise, check along that direction
+        while (!found)
+        {
+          // console.log(x, y);
+          // console.log(posX, posY)
+          // console.log('before');
+          posX += x;
+          posY += y;
+          
+
+          try {
+            current = board[posY][posX];
+          } catch(err) {
+            current = undefined;
+          }
+          // console.log(color);
+          // console.log(x, y);
+          // console.log(posX, posY);
+          // console.log(current === color);
+          // If the algorithm finds another piece of the same color along a direction
+          // end the loop to check a new direction, and set legal to true
+          if (current === color)
+          {
+            found = true;
+            legalObj.legal = true;
+            legalObj.weight += 1
+            
+          }
+          // If the algorithm reaches an out of bounds area or an empty space
+          // end the loop to check a new direction, but do not set legal to true yet
+          else if (current !== 0)
+          {
+            //keep searching
+            found = true;
+            // console.log('should keep searching');
+            
+            // console.log(posX, posY);
+            while(true) {
+              try {
+                current = board[posY][posX];
+              } catch(err) {
+                break;
+              }
+              posX += x;
+              posY += y;
+              legalObj.weight += 1
+              if (current === color) {
+                legalObj['legal'] = true;
+                break;
+              }
+              if (current === 0 || current === undefined){
+                break;
+              }
+              // console.log(current);
+
+            }
+          }
+          else {
+            found = true; //current = 0 break looop
+          }
+        }
       }
     }
   }
-  return validMoves;
+  return legalObj;
 }
 
-const weightScore = (board, playingColor) => {
-  const otc = getOpponentTileColor(playingColor);
-  let score = 0;
-  for (let x = 0; x < N*N; x++) {
-    if (board[x] === playingColor) {
-      score += SQUARE_WEIGHTS[x];
-    }
-    if (board[x] === otc) {
-      score -= SQUARE_WEIGHTS[x];
-    }
-  }
-  return score;
-}
 const heuristic = (board, my_color) => {
   let my_tiles = 0, opp_tiles = 0, i, j, k, my_front_tiles = 0, opp_front_tiles = 0, x, y;
   let p = 0, c = 0, l = 0, m = 0, f = 0, d = 0;

@@ -26,9 +26,6 @@ rl.question('Enter full port : ', (full_port) => {
           user_role: 'player'
         });
         socket.tournament_id = id;
-        // socket.tiro = 0;
-        // socket.validBoard = undefined;
-        // socket.countRepeated = 0;
       });
 
       socket.on('ok_signin', () => {
@@ -40,10 +37,6 @@ rl.question('Enter full port : ', (full_port) => {
         const playerTurnID = data.player_turn_id;
         const board = data.board;
 
-        // if (board === socket.validBoard) {
-        //   socket.countRepeated += 1;
-        // }
-        // socket.validBoard = board;
 
         console.log('play', playerTurnID);
         const movement = minimax(board, playerTurnID, playerTurnID, 0, -Infinity, Infinity);
@@ -58,8 +51,7 @@ rl.question('Enter full port : ', (full_port) => {
 
         console.log('****** MOVEMENT *****');
         console.log(movement);
-        //console.log(h_move);
-       // socket.tiro += 1;
+
         socket.emit('play', {
           tournament_id: socket.tournament_id,
           player_turn_id: playerTurnID,
@@ -72,13 +64,7 @@ rl.question('Enter full port : ', (full_port) => {
         const game_id = data.game_id;
         const player_turn_id = data.player_turn_id;
         const winnerTurnID = data.winner_turn_id;
-        /*console.log(player_turn_id === winnerTurnID? 'winner':'looser');
-        console.log('finish');  
-        console.log(socket.tiro);
-        console.log(socket.countRecountRepeated);
-        socket.tiro = 0;
-        socket.countRepeated = 0;
-        socket.validBoard = undefined;*/
+
         socket.emit('player_ready', {
           tournament_id: socket.tournament_id,
           game_id,

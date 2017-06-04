@@ -1,4 +1,4 @@
-// function to flip positions
+// SM CHZ
 
 import { BLACK, WHITE, N, EMPTY } from './constants';
 import { mapMatrix } from './game_core';

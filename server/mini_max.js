@@ -27,10 +27,6 @@ export const minimax = (board, playerColor, playingColor, depth, max_value, min_
   // get all valid moves
   const validMoves = getAllValidMoves(board, playingColor);
   
-  // const modBoard = transformBoard(board);
-  // console.log(modBoard);
-  
-  // console.log(validMoves);
   
   let nextStates = [];
   // get all possible states from legal moves
@@ -66,6 +62,7 @@ const maxValue = (nextState, playerColor, playingColor, depth, alpha_max, beta_m
   // console.log('length1' + nextState.length);
   for (let state of nextState) {
     v = Math.max(v, minimax(state.nextBoard, playerColor, playingColor, depth + 1, alpha_max, beta_min).v);
+    state.v = v;
     // console.log('should compare');
     // console.log(v, beta_min);
     if (v >= beta_min) { 
@@ -75,9 +72,12 @@ const maxValue = (nextState, playerColor, playingColor, depth, alpha_max, beta_m
     }
     alpha_max = Math.max(alpha_max, v);
   }
-  const random = Math.floor(Math.random() * nextState.length);
-  // console.log('random', random);
-  return { v, legalMove: nextState[random].legalMove };
+  nextState.sort((a, b) => {
+    return parseFloat(a.v) - parseFloat(b.v);
+  });
+  
+  const rNext = nextState[nextState.length-1];
+  return { rNext.v, legalMove: rNext.legalMove };
 }
 
 const minValue = (nextState, playerColor, playingColor, depth, alpha_max, beta_min) => {
@@ -85,6 +85,7 @@ const minValue = (nextState, playerColor, playingColor, depth, alpha_max, beta_m
   //console.log('length2' + nextState.length);
   for (let state of nextState) {
     v = Math.min(v, minimax(state.nextBoard,playerColor, playingColor, depth + 1, alpha_max, beta_min).v);
+    state.v = v;
     if (v <= alpha_max) { 
       // console.log('min');
       // console.log({ v,  legalMove: state.legalMove });
@@ -92,10 +93,12 @@ const minValue = (nextState, playerColor, playingColor, depth, alpha_max, beta_m
     }
     beta_min = Math.min(beta_min, v);
   };
-  const random = Math.floor(Math.random() * nextState.length);
-  // console.log('random', random);
+  nextState.sort((a, b) => {
+    return parseFloat(a.v) - parseFloat(b.v);
+  });
   
-  return { v, legalMove: nextState[random].legalMove };
+  const rNext = nextState[0];
+  return { rNext.v, legalMove: rNext.legalMove };
 }
 
 const getAllValidMoves = (board, playingColor) => {

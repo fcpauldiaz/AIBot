@@ -18,11 +18,11 @@ export const mapMatrix = function(x, y) {
 }
 
 export const legalMove = (r, c, color, board) => {
-  // assign to new object, to avoid reference modification
+  
   
   let legal = false;
   if (board[mapMatrix(r, c)] === 0) {
-    // Initialize variables
+    // init vars
     let posX;
     let posY;
     let found;
@@ -30,7 +30,6 @@ export const legalMove = (r, c, color, board) => {
     
     // Searches in each direction
     // x and y describe a given direction in 9 directions
-    // 0, 0 is redundant and will break in the first check
     for (let x = -1; x <= 1; x++)
     {
       for (let y = -1; y <= 1; y++)
@@ -55,12 +54,10 @@ export const legalMove = (r, c, color, board) => {
           continue;
         }
         
-        // Otherwise, check along that direction
+        // check along that direction
         while (!found)
         {
-          // console.log(x, y);
-          // console.log(posX, posY)
-          // console.log('before');
+
           posX += x;
           posY += y;
           
@@ -82,8 +79,7 @@ export const legalMove = (r, c, color, board) => {
             legal = true;
             
           }
-          // If the algorithm reaches an out of bounds area or an empty space
-          // end the loop to check a new direction, but do not set legal to true yet
+          // keep checking until not more legal
           else if (current !== 0)
           {
             //keep searching
@@ -107,8 +103,6 @@ export const legalMove = (r, c, color, board) => {
               if (current === 0 || current === undefined){
                 break;
               }
-              // console.log(current);
-              // console.log(x, y);
 
             }
           }
